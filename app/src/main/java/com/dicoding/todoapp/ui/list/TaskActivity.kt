@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.todoapp.R
 import com.dicoding.todoapp.data.Task
@@ -26,11 +27,14 @@ class TaskActivity : AppCompatActivity() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var taskViewModel: TaskViewModel
+    private lateinit var adapter: TaskAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task)
         setSupportActionBar(findViewById(R.id.toolbar))
+
+        recycler = findViewById(R.id.rv_task)
 
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
             val addIntent = Intent(this, AddTaskActivity::class.java)
@@ -38,19 +42,32 @@ class TaskActivity : AppCompatActivity() {
         }
 
         //TODO 6 : Initiate RecyclerView with LayoutManager
+        recycler.layoutManager = LinearLayoutManager(this)
 
         initAction()
 
         val factory = ViewModelFactory.getInstance(this)
         taskViewModel = ViewModelProvider(this, factory).get(TaskViewModel::class.java)
 
-        taskViewModel.tasks.observe(this, Observer(this::showRecyclerView))
+        val taskObserver = Observer<PagedList<Task>> { aTask ->
+            showRecyclerView(aTask)
+        }
+        taskViewModel.tasks.observe(this, taskObserver)
 
         //TODO 15 : Fixing bug : snackBar not show when task completed
+        val snackbarObserver = Observer<Event<Int>> { aSnackBar ->
+            showSnackBar(aSnackBar)
+        }
+        taskViewModel.snackbarText.observe(this, snackbarObserver)
     }
 
     private fun showRecyclerView(task: PagedList<Task>) {
         //TODO 7 : Submit pagedList to adapter and update database when onCheckChange
+        adapter = TaskAdapter{ it, isCompleted ->
+            taskViewModel.completeTask(it, isCompleted)
+        }
+        adapter.submitList(task)
+        recycler.adapter = adapter
     }
 
     private fun showSnackBar(eventMessage: Event<Int>) {

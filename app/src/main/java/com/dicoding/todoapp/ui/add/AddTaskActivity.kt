@@ -5,14 +5,20 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.dicoding.todoapp.R
+import com.dicoding.todoapp.data.Task
+import com.dicoding.todoapp.ui.ViewModelFactory
 import com.dicoding.todoapp.utils.DatePickerFragment
+import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AddTaskActivity : AppCompatActivity(), DatePickerFragment.DialogDateListener {
     private var dueDateMillis: Long = System.currentTimeMillis()
+    private lateinit var taskViewModel: AddTaskViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,6 +26,8 @@ class AddTaskActivity : AppCompatActivity(), DatePickerFragment.DialogDateListen
 
         supportActionBar?.title = getString(R.string.add_task)
 
+        val factory = ViewModelFactory.getInstance(this)
+        taskViewModel = ViewModelProvider(this, factory).get(AddTaskViewModel::class.java)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -31,6 +39,19 @@ class AddTaskActivity : AppCompatActivity(), DatePickerFragment.DialogDateListen
         return when (item.itemId) {
             R.id.action_save -> {
                 //TODO 12 : Create AddTaskViewModel and insert new task to database
+//                taskViewModel = ViewModelProvider(this, ViewModelFactory.getInstance(this))[AddTaskViewModel::class.java]
+
+                val title = findViewById<TextInputEditText>(R.id.add_ed_title).text
+                val desc = findViewById<TextInputEditText>(R.id.add_ed_description).text
+
+                if (title!!.isNotEmpty() and desc!!.isNotEmpty()) {
+                    val task = Task(0, title.toString(), desc.toString(), dueDateMillis, false)
+                    taskViewModel.insertTask(task)
+                    onBackPressed()
+                } else {
+                    Toast.makeText(this, "Fill all the required fields!", Toast.LENGTH_SHORT).show()
+                }
+
                 true
             }
             else -> super.onOptionsItemSelected(item)
