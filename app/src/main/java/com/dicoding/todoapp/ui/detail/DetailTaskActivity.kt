@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.dicoding.todoapp.R
 import com.dicoding.todoapp.data.Task
 import com.dicoding.todoapp.ui.ViewModelFactory
+import com.dicoding.todoapp.ui.list.TaskAdapter
 import com.dicoding.todoapp.utils.DateConverter
 import com.dicoding.todoapp.utils.TASK_ID
 import com.google.android.material.textfield.TextInputEditText
@@ -39,7 +40,8 @@ class DetailTaskActivity : AppCompatActivity() {
 
         btnDelete.setOnClickListener {
             viewModel.deleteTask()
-            onBackPressed()
+            viewModel.task.removeObservers(this@DetailTaskActivity)
+            finish()
         }
     }
 }

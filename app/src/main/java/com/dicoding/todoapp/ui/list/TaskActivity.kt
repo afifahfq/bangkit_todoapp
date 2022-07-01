@@ -27,14 +27,12 @@ class TaskActivity : AppCompatActivity() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var taskViewModel: TaskViewModel
-    private lateinit var adapter: TaskAdapter
+    private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task)
         setSupportActionBar(findViewById(R.id.toolbar))
-
-        recycler = findViewById(R.id.rv_task)
 
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
             val addIntent = Intent(this, AddTaskActivity::class.java)
@@ -42,6 +40,7 @@ class TaskActivity : AppCompatActivity() {
         }
 
         //TODO 6 : Initiate RecyclerView with LayoutManager
+        recycler = findViewById(R.id.rv_task)
         recycler.layoutManager = LinearLayoutManager(this)
 
         initAction()
@@ -63,11 +62,11 @@ class TaskActivity : AppCompatActivity() {
 
     private fun showRecyclerView(task: PagedList<Task>) {
         //TODO 7 : Submit pagedList to adapter and update database when onCheckChange
-        adapter = TaskAdapter{ it, isCompleted ->
+        taskAdapter = TaskAdapter{ it, isCompleted ->
             taskViewModel.completeTask(it, isCompleted)
         }
-        adapter.submitList(task)
-        recycler.adapter = adapter
+        taskAdapter.submitList(task)
+        recycler.adapter = taskAdapter
     }
 
     private fun showSnackBar(eventMessage: Event<Int>) {

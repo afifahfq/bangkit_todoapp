@@ -11,7 +11,7 @@ interface TaskDao {
     @RawQuery(observedEntities = [Task::class])
     fun getTasks(query: SupportSQLiteQuery): DataSource.Factory<Int, Task>
 
-    @Query("SELECT * FROM tasks ORDER BY :taskId ASC")
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
     fun getTaskById(taskId: Int): LiveData<Task>
 
     @Query("SELECT * FROM tasks WHERE completed = 0 ORDER BY dueDate ASC LIMIT 1")
